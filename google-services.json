@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "331609605171",
+    "project_id": "nexcis-auth",
+    "storage_bucket": "nexcis-auth.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:331609605171:android:3d625efd56dcd6eb780f46",
+        "android_client_info": {
+          "package_name": "com.anonymous.NexcisWebViewApp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "331609605171-iro1kn7mha7nl4lepfnikrlgk1t4d96a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACvp8UFP3NYiVOARU1NcXUz2qvycVP_bA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "331609605171-iro1kn7mha7nl4lepfnikrlgk1t4d96a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

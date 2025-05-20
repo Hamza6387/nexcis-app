@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nexcis Auth</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        #error-container {
+            display: none;
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 5px;
+            border: 1px solid #f5c6cb;
+        }
+        #loading {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            background-color: #f0f0f0;
+        }
+        .spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        iframe {
+            border: none;
+            flex-grow: 1;
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+        #retry-button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Loading Nexcis Auth...</p>
+    </div>
+    
+    <div id="error-container">
+        <h3>Error Loading Application</h3>
+        <p id="error-message">An error occurred while loading the application.</p>
+        <button id="retry-button" onclick="loadWebsite()">Retry</button>
+    </div>
+    
+    <iframe id="content-frame" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+
+    <script>
+        let retryCount = 0;
+        const maxRetries = 3;
+        
+        function showError(message) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content-frame').style.display = 'none';
+            document.getElementById('error-container').style.display = 'block';
+            document.getElementById('error-message').textContent = message;
+        }
+        
+        function loadWebsite() {
+            const iframe = document.getElementById('content-frame');
+            document.getElementById('loading').style.display = 'flex';
+            document.getElementById('error-container').style.display = 'none';
+            
+            // Add timestamp to URL to prevent caching issues
+            const url = 'https://nexcis-auth.web.app?t=' + new Date().getTime();
+            
+            // Create a timeout
+            const timeoutId = setTimeout(() => {
+                if (retryCount < maxRetries) {
+                    retryCount++;
+                    console.log(`Load timed out, retrying (${retryCount}/${maxRetries})...`);
+                    loadWebsite();
+                } else {
+                    showError(`Failed to load after ${maxRetries} attempts. The server might be down or unreachable.`);
+                }
+            }, 15000); // 15 seconds timeout
+            
+            try {
+                iframe.onload = function() {
+                    clearTimeout(timeoutId);
+                    document.getElementById('loading').style.display = 'none';
+                    iframe.style.display = 'block';
+                };
+                
+                iframe.onerror = function(e) {
+                    clearTimeout(timeoutId);
+                    console.error('iframe load error:', e);
+                    showError(`Failed to load content: ${e.message || 'Unknown error'}`);
+                };
+                
+                iframe.src = url;
+            } catch (err) {
+                clearTimeout(timeoutId);
+                console.error('Error setting up iframe:', err);
+                showError(`Error initializing: ${err.message}`);
+            }
+        }
+        
+        // Check connection before loading
+        function checkConnection() {
+            if (navigator.onLine) {
+                loadWebsite();
+            } else {
+                showError('No internet connection. Please check your network settings and try again.');
+            }
+            
+            // Listen for online/offline events
+            window.addEventListener('online', loadWebsite);
+            window.addEventListener('offline', () => {
+                showError('Connection lost. Please check your network settings and try again.');
+            });
+        }
+        
+        // Start the loading process
+        window.onload = checkConnection;
+        
+        // Add a global error handler
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error('Global error:', message, source, lineno, colno, error);
+            showError(`JavaScript error: ${message}`);
+            return true;
+        };
+    </script>
+</body>
+</html> 
